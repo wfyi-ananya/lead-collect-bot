@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>FylFlix Chatbot Integration</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      color: #111827;
+    }
+
+    header {
+      background: #0f172a;
+      color: white;
+      padding: 24px;
+      text-align: center;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 24px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 12px;
+      font-size: 36px;
+    }
+
+    p {
+      font-size: 18px;
+      line-height: 1.6;
+      color: #4b5563;
+    }
+
+    .card {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    button {
+      margin-top: 24px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    footer {
+      margin-top: 60px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>FylFlix</h1>
+    <p>AI-powered tax, GST, accounting and compliance support</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>Need help with ITR, GST, accounting or compliance?</h2>
+      <p>
+        Chat with the FylFlix AI Expert to understand services, pricing,
+        plans, documents required, and expert-assisted support.
+      </p>
+
+      <button onclick="openFylFlixChatbot()">
+        Chat with FylFlix AI
+      </button>
+    </div>
+
+    <footer>
+      © 2026 FylFlix. All rights reserved.
+    </footer>
+  </main>
+
+  <!-- 
+    Create or reuse a unique thread ID for the visitor.
+    This helps continue the same user's conversation across page reloads.
+  -->
+  <script>
+    const fylflixThreadId =
+      localStorage.getItem("fylflix_thread_id") || crypto.randomUUID();
+
+    localStorage.setItem("fylflix_thread_id", fylflixThreadId);
+  </script>
+
+  <!-- GTWY Chatbot Embed Script -->
+  <script
+    id="chatbot-main-script"
+    embedToken="J5BJzFjG8KqNRP5J67zf1M1kNso9OUue"
+    src="https://chatbot-embed.viasocket.com/chatbot-prod.js">
+  </script>
+
+  <!-- Chatbot Configuration and Controls -->
+  <script>
+    function sendConfigToChatbot() {
+      if (typeof window.SendDataToChatbot === "function") {
+        window.SendDataToChatbot({
+          bridgeName: "Fylflix AI Expert",
+          threadId: fylflixThreadId,
+
+          variables: {
+            lead_source: "website",
+            source_page: window.location.href,
+            product: "fylflix"
+          },
+
+          config: {
+            theme: "light",
+            chatbotTitle: "FylFlix AI Expert",
+            chatbotSubtitle: "Tax, GST & Compliance Help",
+            side: "right",
+            language: "en",
+            buttonName: "Ask FylFlix AI",
+            features: {
+              voice_enabled: false,
+              file_upload: false
+            }
+          }
+        });
+      }
+    }
+
+    function openFylFlixChatbot() {
+      sendConfigToChatbot();
+
+      if (typeof window.openChatbot === "function") {
+        window.openChatbot();
+      } else if (window.Chatbot && typeof window.Chatbot.open === "function") {
+        window.Chatbot.open();
+      }
+    }
+
+    window.addEventListener("load", function () {
+      setTimeout(sendConfigToChatbot, 1000);
+    });
+
+    window.addEventListener("message", function (event) {
+      const chatbotEvent = event.data;
+
+      if (chatbotEvent?.data?.type === "MESSAGE_SENT") {
+        console.log("User sent a message:", chatbotEvent);
+      }
+
+      if (chatbotEvent?.data?.type === "MESSAGE_RECEIVED") {
+        console.log("Chatbot replied:", chatbotEvent);
+      }
+
+      if (chatbotEvent?.data?.type === "MESSAGE_RECEIVED_WITH_ERROR") {
+        console.error("Chatbot error:", chatbotEvent);
+      }
+    });
+  </script>
+
+</body>
+</html>

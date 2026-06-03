@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FylFlix — AI Tax Expert</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --bg-soft: #111827;
+      --surface: rgba(255, 255, 255, 0.04);
+      --surface-hover: rgba(255, 255, 255, 0.07);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.15);
+      --accent-glow: rgba(34, 197, 94, 0.35);
+      --gold: #fbbf24;
+      --gradient: linear-gradient(135deg, #22c55e 0%, #14b8a6 50%, #0ea5e9 100%);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --nav-h: 72px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.18), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(14, 165, 233, 0.12), transparent),
+        radial-gradient(ellipse 50% 30% at 0% 100%, rgba(20, 184, 166, 0.1), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1rem, 4vw, 2.5rem);
+      background: rgba(11, 15, 23, 0.75);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: "Outfit", sans-serif;
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--gradient);
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      transition: all 0.3s ease;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: pulse 1.8s ease infinite;
+    }
+
+    .status-pill.ready {
+      border-color: rgba(34, 197, 94, 0.3);
+      color: var(--accent);
+    }
+
+    .status-pill.ready .status-dot {
+      background: var(--accent);
+      animation: none;
+    }
+
+    .status-pill.error {
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+
+    .status-pill.error .status-dot {
+      background: #ef4444;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.35rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: #052e16;
+      box-shadow: 0 8px 28px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 12px 36px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface-hover);
+    }
+
+    .btn-sm {
+      padding: 0.55rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    .btn-icon {
+      width: 1.1em;
+      height: 1.1em;
+      flex-shrink: 0;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: clamp(2.5rem, 8vw, 5rem) clamp(1rem, 4vw, 2.5rem) clamp(3rem, 6vw, 4rem);
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(2rem, 5vw, 4rem);
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 {
+      font-family: "Outfit", sans-serif;
+      font-size: clamp(2rem, 5.5vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      max-width: 520px;
+      margin-bottom: 2rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .hero-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .chat-preview {
+      width: 100%;
+      max-width: 380px;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .chat-preview-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.15rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--gradient);
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+    }
+
+    .chat-preview-header strong {
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    .chat-preview-header small {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    .chat-preview-body {
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      min-height: 260px;
+    }
+
+    .bubble {
+      max-width: 88%;
+      padding: 0.75rem 1rem;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .bubble.bot {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      align-self: flex-start;
+    }
+
+    .bubble.user {
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-bottom-right-radius: 4px;
+      align-self: flex-end;
+      animation-delay: 0.3s;
+    }
+
+    .bubble.typing {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      animation-delay: 0.6s;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: typingBounce 1.2s ease infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-5px); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Sections ── */
+    .section {
+      padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 4vw, 2.5rem);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+    }
+
+    .section-header h2 {
+      font-family: "Outfit", sans-serif;
+      font-size: clamp(1.5rem, 3.5vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ── Service cards ── */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .service-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+      cursor: pointer;
+      transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+      text-align: left;
+      color: inherit;
+      font-family: inherit;
+    }
+
+    .service-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(34, 197, 94, 0.3);
+      background: var(--surface-hover);
+    }
+
+    .service-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      display: grid;
+      place-items: center;
+      font-size: 1.25rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .service-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .service-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── Features ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    .feature-item {
+      text-align: center;
+      padding: 1.25rem 1rem;
+    }
+
+    .feature-num {
+      font-family: "Outfit", sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+    }
+
+    .feature-item span {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Controls panel ── */
+    .controls-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(1.25rem, 3vw, 2rem);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 2rem 1rem calc(2rem + var(--safe-bottom));
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+
+    /* ── GTWY chat panel — desktop / tablet ── */
+    #iframe-parent-container.popup-parent-container {
+      border-radius: 16px !important;
+      overflow: hidden !important;
+      box-shadow: var(--shadow) !important;
+      border: 1px solid var(--border) !important;
+    }
+
+    /* ── Floating chat FAB (all screen sizes) ── */
+    .fab-chat {
+      position: fixed;
+      bottom: calc(1.25rem + var(--safe-bottom));
+      right: 1.25rem;
+      z-index: 2147483000;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: none;
+      background: var(--gradient);
+      color: #052e16;
+      cursor: pointer;
+      box-shadow: 0 8px 32px var(--accent-glow);
+      display: none;
+      place-items: center;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+    }
+
+    .fab-chat.is-visible {
+      display: grid;
+      animation: fabIn 0.5s ease both;
+    }
+
+    .fab-chat:hover {
+      transform: scale(1.08);
+      box-shadow: 0 12px 40px var(--accent-glow);
+    }
+
+    .fab-chat svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    @keyframes fabIn {
+      from { opacity: 0; transform: scale(0.5) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* ── Tablet / laptop / desktop chat panel ── */
+    @media (min-width: 768px) {
+      .hero {
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: clamp(2rem, 3vw, 3rem);
+      }
+
+      .hero-visual {
+        justify-content: flex-start;
+      }
+
+      .chat-preview {
+        max-width: min(360px, 100%);
+      }
+
+      .page {
+        padding-bottom: 88px;
+      }
+
+      #iframe-parent-container.popup-parent-container {
+        bottom: 24px !important;
+        right: 24px !important;
+        width: min(420px, calc(100vw - 48px)) !important;
+        height: min(680px, calc(100dvh - 48px)) !important;
+        max-height: calc(100dvh - 48px) !important;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      #iframe-parent-container.popup-parent-container {
+        width: 440px !important;
+        height: min(720px, calc(100dvh - 48px)) !important;
+      }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero-desc {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-actions {
+        justify-content: center;
+      }
+
+      .hero-visual {
+        order: -1;
+      }
+
+      .chat-preview {
+        max-width: 340px;
+      }
+
+      .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 767px) {
+      .fab-chat.is-visible {
+        width: 54px;
+        height: 54px;
+        bottom: calc(1rem + var(--safe-bottom));
+        right: 1rem;
+      }
+
+      #iframe-parent-container.popup-parent-container {
+        bottom: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100dvh !important;
+        border-radius: 0 !important;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .nav-actions .btn-ghost {
+        display: none;
+      }
+
+      .status-pill span.label {
+        display: none;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+      }
+
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+      }
+
+      .feature-item {
+        padding: 0.85rem 0.5rem;
+      }
+
+      .controls-panel {
+        flex-direction: column;
+      }
+
+      .controls-panel .btn {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .logo span.text {
+        font-size: 1.1rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <nav class="nav">
+      <a class="logo" href="#">
+        <div class="logo-icon">F</div>
+        <span class="text">FylFlix</span>
+      </a>
+      <div class="nav-actions">
+        <div class="status-pill" id="botStatus">
+          <span class="status-dot"></span>
+          <span class="label" id="statusLabel">Connecting AI…</span>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="openChatbot()">Chat now</button>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4z"/><circle cx="9" cy="13" r="1" fill="currentColor"/><circle cx="15" cy="13" r="1" fill="currentColor"/></svg>
+          AI Expert · Online 24/7
+        </div>
+        <h1>Your personal <span>tax &amp; compliance</span> assistant</h1>
+        <p class="hero-desc">
+          Get instant answers on ITR filing, GST, business registration, and pricing — powered by FylFlix AI Expert. Secure, fast, and built for Indian taxpayers.
+        </p>
+        <div class="hero-actions">
+          <button type="button" class="btn btn-primary" onclick="openChatbot()">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Talk to AI Expert
+          </button>
+          <button type="button" class="btn btn-ghost" onclick="askAbout('ITR Filing')">
+            Start with ITR help
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="chat-preview" aria-hidden="true">
+          <div class="chat-preview-header">
+            <div class="chat-avatar">🤖</div>
+            <div>
+              <strong>Fylflix AI Expert</strong>
+              <small>Typically replies instantly</small>
+            </div>
+          </div>
+          <div class="chat-preview-body">
+            <div class="bubble bot">Hi! I'm your FylFlix AI Expert. What can I help you with today?</div>
+            <div class="bubble user">I need help filing my ITR for this year.</div>
+            <div class="bubble bot">Great! I'll guide you step-by-step. Are you filing as an individual or business?</div>
+            <div class="bubble typing">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>What can I help you with?</h2>
+        <p>Tap a service to start a conversation with context already set.</p>
+      </div>
+      <div class="services-grid">
+        <button type="button" class="service-card" onclick="askAbout('ITR Filing')">
+          <div class="service-icon">📋</div>
+          <h3>ITR Filing</h3>
+          <p>Individual &amp; business income tax returns, deductions, and deadlines.</p>
+        </button>
+        <button type="button" class="service-card" onclick="askAbout('GST Services')">
+          <div class="service-icon">🏢</div>
+          <h3>GST Services</h3>
+          <p>Registration, returns, compliance, and GST-related queries.</p>
+        </button>
+        <button type="button" class="service-card" onclick="askAbout('Pricing')">
+          <div class="service-icon">💰</div>
+          <h3>Pricing &amp; Plans</h3>
+          <p>Compare plans and find the right package for your needs.</p>
+        </button>
+        <button type="button" class="service-card" onclick="askAbout('Business Registration')">
+          <div class="service-icon">🚀</div>
+          <h3>Business Registration</h3>
+          <p>Company, LLP, proprietorship setup and documentation.</p>
+        </button>
+        <button type="button" class="service-card" onclick="askAbout('Accounting')">
+          <div class="service-icon">📊</div>
+          <h3>Accounting</h3>
+          <p>Bookkeeping, financial statements, and ongoing support.</p>
+        </button>
+        <button type="button" class="service-card" onclick="askAbout('Contact')">
+          <div class="service-icon">📞</div>
+          <h3>Talk to an Expert</h3>
+          <p>Connect with a human expert for complex or custom cases.</p>
+        </button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-num">24/7</div>
+          <span>Always available</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-num">100%</div>
+          <span>Secure tokens</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-num">5 min</div>
+          <span>Avg. response</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-num">10K+</div>
+          <span>Queries handled</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Chatbot controls</h2>
+        <p>Test the embedded widget programmatically.</p>
+      </div>
+      <div class="controls-panel">
+        <button type="button" class="btn btn-primary" onclick="openChatbot()">Open</button>
+        <button type="button" class="btn btn-ghost" onclick="closeChatbot()">Close</button>
+        <button type="button" class="btn btn-ghost" onclick="askAi()">Ask about ITR</button>
+        <button type="button" class="btn btn-ghost" onclick="toggleChatbot()">Toggle visibility</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      &copy; 2026 FylFlix. AI Expert powered by GTWY. Auth key secured on backend.
+    </footer>
+  </div>
+
+  <button type="button" class="fab-chat" id="fabChat" onclick="openChatbot()" aria-label="Open chat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </button>
+
+  <script>
+    let chatbotLoaded = false;
+    let chatbotVisible = true;
+    let currentThreadId = null;
+    const BRIDGE_NAME = "Fylflix AI Expert";
+
+    const blockedPages = ["/privacy-policy", "/terms"];
+    const highIntentPages = ["/pricing", "/itr-filing", "/contact-us"];
+
+    const statusEl = document.getElementById("botStatus");
+    const statusLabel = document.getElementById("statusLabel");
+    const fabChat = document.getElementById("fabChat");
+
+    function setBotStatus(state, label) {
+      statusEl.className = "status-pill " + state;
+      statusLabel.textContent = label;
+    }
+
+    function getUTMParam(name) {
+      return new URLSearchParams(window.location.search).get(name) || "";
+    }
+
+    function detectServiceFromPage() {
+      const path = window.location.pathname;
+      if (path.includes("itr")) return "ITR Filing";
+      if (path.includes("gst")) return "GST Services";
+      if (path.includes("pricing")) return "Pricing";
+      if (path.includes("registration")) return "Business Registration";
+      if (path.includes("accounting")) return "Accounting";
+      if (path.includes("contact")) return "Contact";
+      return "";
+    }
+
+    function detectLeadStage() {
+      const path = window.location.pathname;
+      if (path.includes("pricing")) return "pricing_interest";
+      if (path.includes("itr") || path.includes("gst")) return "service_interest";
+      return "new";
+    }
+
+    function detectUserType() {
+      const path = window.location.pathname;
+      if (path.includes("gst")) return "business";
+      if (path.includes("itr")) return "individual";
+      return "unknown";
+    }
+
+    function getOrCreateUserId() {
+      let userId = localStorage.getItem("fylflix_user_id");
+      if (!userId) {
+        userId = "guest_" + crypto.randomUUID();
+        localStorage.setItem("fylflix_user_id", userId);
+      }
+      return userId;
+    }
+
+    function isMobileViewport() {
+      return window.innerWidth < 768;
+    }
+
+    function getChatbotConfig() {
+      if (isMobileViewport()) {
+        return {
+          type: "popup",
+          side: "right",
+          width: "100",
+          widthUnit: "%",
+          height: "100",
+          heightUnit: "%"
+        };
+      }
+
+      const panelWidth = window.innerWidth >= 1200 ? "440" : "420";
+
+      return {
+        type: "popup",
+        side: "right",
+        width: panelWidth,
+        widthUnit: "px",
+        height: "680",
+        heightUnit: "px",
+        chatbotTitle: "FylFlix AI Expert",
+        chatbotSubtitle: "Tax, GST & Compliance Help"
+      };
+    }
+
+    function sendChatContext(overrides = {}) {
+      if (!window.Chatbot || !currentThreadId) return;
+
+      const mobile = isMobileViewport();
+
+      window.Chatbot.sendData({
+        bridgeName: BRIDGE_NAME,
+        threadId: currentThreadId,
+        fullScreen: mobile,
+        hideCloseButton: false,
+        hideIcon: true,
+        variables: {
+          source: "website",
+          page: window.location.pathname,
+          userType: overrides.userType || detectUserType(),
+          interestedService: overrides.interestedService || detectServiceFromPage(),
+          leadStage: overrides.leadStage || detectLeadStage(),
+          campaign: getUTMParam("utm_campaign")
+        },
+        config: getChatbotConfig(),
+        theme: "dark"
+      });
+    }
+
+    function autoOpenForHighIntentPages() {
+      if (highIntentPages.includes(window.location.pathname)) {
+        setTimeout(() => {
+          if (window.Chatbot) window.Chatbot.open();
+        }, 2000);
+      }
+    }
+
+    function hideOnBlockedPages() {
+      if (blockedPages.includes(window.location.pathname) && window.Chatbot) {
+        chatbotVisible = false;
+        window.Chatbot.close();
+        syncFabVisibility();
+      }
+    }
+
+    function syncFabVisibility() {
+      fabChat.classList.toggle("is-visible", chatbotVisible);
+    }
+
+    async function loadChatbot() {
+      try {
+        setBotStatus("", "Connecting AI…");
+
+        const response = await fetch("/api/chatbot-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: getOrCreateUserId(),
+            source: "website",
+            page: window.location.pathname,
+            userType: detectUserType(),
+            interestedService: detectServiceFromPage(),
+            leadStage: detectLeadStage(),
+            campaign: getUTMParam("utm_campaign")
+          })
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+          setBotStatus("error", "Offline");
+          console.error("Token generation failed:", data.message);
+          return;
+        }
+
+        currentThreadId = data.threadId;
+
+        if (document.getElementById("chatbot-main-script")) return;
+
+        const script = document.createElement("script");
+        script.id = "chatbot-main-script";
+        script.setAttribute("embedToken", data.embedToken);
+        script.setAttribute("src", "https://chatbot.gtwy.ai/chatbot.js");
+        script.setAttribute("threadId", data.threadId);
+        script.setAttribute("bridgeName", data.bridgeName || BRIDGE_NAME);
+        script.setAttribute("theme", "dark");
+        script.setAttribute("hideIcon", "true");
+
+        script.onload = function () {
+          chatbotLoaded = true;
+          setBotStatus("ready", "AI Online");
+          sendChatContext();
+          syncFabVisibility();
+          hideOnBlockedPages();
+          autoOpenForHighIntentPages();
+          console.log("Chatbot script loaded successfully");
+        };
+
+        script.onerror = function () {
+          setBotStatus("error", "Load failed");
+          console.error("Failed to load chatbot script");
+        };
+
+        document.body.appendChild(script);
+      } catch (error) {
+        setBotStatus("error", "Offline");
+        console.error("Chatbot loading error:", error);
+      }
+    }
+
+    function openChatbot() {
+      if (window.Chatbot) {
+        sendChatContext();
+        window.Chatbot.open();
+      } else {
+        setBotStatus("", "Connecting…");
+        console.warn("Chatbot not loaded yet");
+      }
+    }
+
+    function closeChatbot() {
+      if (window.Chatbot) window.Chatbot.close();
+    }
+
+    function askAi() {
+      askAbout("ITR Filing");
+    }
+
+    function askAbout(service) {
+      const messages = {
+        "ITR Filing": "I want help with ITR filing for this assessment year.",
+        "GST Services": "I need help with GST registration and compliance.",
+        "Pricing": "Can you explain your pricing plans and which one suits me?",
+        "Business Registration": "I want to register a new business. What are my options?",
+        "Accounting": "I need accounting and bookkeeping support for my business.",
+        "Contact": "I'd like to speak with a human tax expert."
+      };
+
+      const msg = messages[service] || "I need help with " + service;
+
+      if (window.Chatbot) {
+        sendChatContext({
+          interestedService: service,
+          leadStage: service === "Pricing" ? "pricing_interest" : "service_interest",
+          userType: service === "GST Services" ? "business" : service === "ITR Filing" ? "individual" : "unknown"
+        });
+        window.Chatbot.askAi({ message: msg });
+        window.Chatbot.open();
+      } else {
+        openChatbot();
+      }
+    }
+
+    function toggleChatbot() {
+      if (!window.Chatbot) return;
+
+      if (chatbotVisible) {
+        chatbotVisible = false;
+        window.Chatbot.close();
+      } else {
+        chatbotVisible = true;
+        sendChatContext();
+      }
+
+      syncFabVisibility();
+    }
+
+    window.addEventListener("message", function (event) {
+      const data = event.data;
+      console.log("Chatbot event received:", data);
+      if (data?.type === "lead_captured") console.log("Lead captured:", data);
+      if (data?.type === "chatbot_opened") console.log("Chatbot opened");
+      if (data?.type === "chatbot_closed") console.log("Chatbot closed");
+    });
+
+    window.addEventListener("resize", function () {
+      if (chatbotLoaded) {
+        sendChatContext();
+        syncFabVisibility();
+      }
+    });
+
+    loadChatbot();
+  </script>
+</body>
+</html>
