@@ -716,7 +716,7 @@
           Get instant answers on ITR filing, GST, business registration, and pricing — powered by FylFlix AI Expert. Secure, fast, and built for Indian taxpayers.
         </p>
         <div class="hero-actions">
-          <button type="button" class="btn btn-primary" onclick="openChatbot()">
+          <button type="button" class="btn btn-primary" onclick="askAbout('Hii')">
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             Talk to AI Expert
           </button>
@@ -835,6 +835,8 @@
     let chatbotLoaded = false;
     let chatbotVisible = true;
     let currentThreadId = null;
+    let pendingChatMessage = null;
+    let sendingPendingMessage = false;
     const BRIDGE_NAME = "Fylflix AI Expert";
 
     const blockedPages = ["/privacy-policy", "/terms"];
@@ -916,6 +918,38 @@
         chatbotSubtitle: "Tax, GST & Compliance Help"
       };
     }
+    function sendMessageToChatbot(message, context = {}, attempt = 0) {
+  const maxAttempts = 20;
+
+  const chatbotReady =
+    window.Chatbot &&
+    typeof window.Chatbot.open === "function" &&
+    typeof window.Chatbot.askAi === "function";
+
+  if (!chatbotReady) {
+    pendingChatMessage = { message, context };
+
+    if (attempt < maxAttempts) {
+      setTimeout(() => {
+        sendMessageToChatbot(message, context, attempt + 1);
+      }, 300);
+    } else {
+      console.error("Chatbot did not become ready. Message not sent:", message);
+    }
+
+    return;
+  }
+
+  pendingChatMessage = null;
+
+  sendChatContext(context);
+  window.Chatbot.open();
+
+  // Allow the chatbot iframe to finish opening before sending the message
+  setTimeout(() => {
+    window.Chatbot.askAi({ message });
+  }, 400);
+}
 
     function sendChatContext(overrides = {}) {
       if (!window.Chatbot || !currentThreadId) return;
@@ -1002,11 +1036,24 @@
 
         script.onload = function () {
           chatbotLoaded = true;
+
           setBotStatus("ready", "AI Online");
           sendChatContext();
           syncFabVisibility();
           hideOnBlockedPages();
           autoOpenForHighIntentPages();
+
+          if (pendingChatMessage && !sendingPendingMessage) {
+            sendingPendingMessage = true;
+
+            const { message, context } = pendingChatMessage;
+
+            setTimeout(() => {
+              sendMessageToChatbot(message, context);
+              sendingPendingMessage = false;
+            }, 500);
+          }
+
           console.log("Chatbot script loaded successfully");
         };
 
@@ -1041,29 +1088,39 @@
     }
 
     function askAbout(service) {
-      const messages = {
-        "ITR Filing": "I want help with ITR filing for this assessment year.",
-        "GST Services": "I need help with GST registration and compliance.",
-        "Pricing": "Can you explain your pricing plans and which one suits me?",
-        "Business Registration": "I want to register a new business. What are my options?",
-        "Accounting": "I need accounting and bookkeeping support for my business.",
-        "Contact": "I'd like to speak with a human tax expert."
-      };
+  const messages = {
+    "Hii": "Hii",
+    "ITR Filing": "I want help with ITR filing for this assessment year.",
+    "GST Services": "I need help with GST registration and compliance.",
+    "Pricing": "Can you explain your pricing plans and which one suits me?",
+    "Business Registration": "I want to register a new business. What are my options?",
+    "Accounting": "I need accounting and bookkeeping support for my business.",
+    "Contact": "I'd like to speak with a human tax expert."
+  };
 
-      const msg = messages[service] || "I need help with " + service;
+  const message = messages[service] || `I need help with ${service}`;
 
-      if (window.Chatbot) {
-        sendChatContext({
-          interestedService: service,
-          leadStage: service === "Pricing" ? "pricing_interest" : "service_interest",
-          userType: service === "GST Services" ? "business" : service === "ITR Filing" ? "individual" : "unknown"
-        });
-        window.Chatbot.askAi({ message: msg });
-        window.Chatbot.open();
-      } else {
-        openChatbot();
-      }
-    }
+  const context = {
+    interestedService: service === "Hii" ? "" : service,
+    leadStage:
+      service === "Pricing"
+        ? "pricing_interest"
+        : service === "Hii"
+          ? "new"
+          : "service_interest",
+    userType:
+      service === "GST Services"
+        ? "business"
+        : service === "ITR Filing"
+          ? "individual"
+          : "unknown"
+  };
+
+  sendMessageToChatbot(message, context);
+}
+
+      
+    
 
     function toggleChatbot() {
       if (!window.Chatbot) return;
