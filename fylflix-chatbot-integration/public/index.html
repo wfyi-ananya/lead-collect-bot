@@ -837,7 +837,7 @@
     let currentThreadId = null;
     let pendingChatMessage = null;
     let sendingPendingMessage = false;
-    const BRIDGE_NAME = "Fylflix AI Expert";
+    const BRIDGE_NAME = "Fylflix Assistant";
 
     const blockedPages = ["/privacy-policy", "/terms"];
     const highIntentPages = ["/pricing", "/itr-filing", "/contact-us"];
@@ -971,7 +971,7 @@
           campaign: getUTMParam("utm_campaign")
         },
         config: getChatbotConfig(),
-        theme: "dark"
+        theme: "light"
       });
     }
 
